@@ -3,26 +3,43 @@
 /*                                                            */
 
 using System.Diagnostics.Metrics;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
-var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,;:<>/?\\=+";
 
-var rand = new Random((int)DateTime.Now.Ticks);
+Console.Write("Provide x: "); var x = int.Parse(Console.ReadLine() ?? "0"); // x - min phrase length [x; inf)
+Console.Write("Provide y: "); var y = int.Parse(Console.ReadLine() ?? "0"); // y - min freq [y; inf)
 
-Console.Write("Provide x: "); var x = int.Parse(Console.ReadLine()); // x - min phrase length [x; inf)
-Console.Write("Provide y: "); var y = int.Parse(Console.ReadLine()); // y - min freq [y; inf)
-
-Console.Write("Provide n: "); var n = int.Parse(Console.ReadLine()); // n - phrase count
-Console.Write("Provide m: "); var m = int.Parse(Console.ReadLine()); // m - final element count
-
-Console.WriteLine();
+Console.Write("Provide r: "); var r = new Regex(Console.ReadLine() ?? "0"); // r - phrase regex pattern;
 
 var outStr = "";
 
+Console.Write("Skip generation? "); 
+if(int.Parse(Console.ReadLine() ?? "0") == 1) {
+    Console.Write("Enter path to data file: "); var f = Console.ReadLine();
+
+	while(!File.Exists(f)) {
+        Console.Write("Path does not exist! Try again.\nEnter path to data file: "); f = Console.ReadLine();
+    }
+
+	outStr = File.ReadAllText(f);
+
+	goto search;
+}
+
+Console.Write("Provide n: "); var n = int.Parse(Console.ReadLine() ?? "0"); // n - phrase count
+Console.Write("Provide m: "); var m = int.Parse(Console.ReadLine() ?? "0"); // m - final element count
+
+Console.WriteLine();
+
 List<string> phrases = new();
 
-for (int i = 0; i < n; i++) {                                        // Generating the phrases
-	var phrase = "";
+for (int i = 0; i < n; i++) {
+    var rand = new Random((int)DateTime.Now.Ticks);
+    // Generating the phrases
+    var phrase = "";
 
 	for (int o = 0; o < x + rand.Next(0, (x + 3) % m); o++) {
 		phrase += chars[rand.Next(chars.Length)];
@@ -36,14 +53,19 @@ for (int i = 0; i < n; i++) {                                        // Generati
 StringBuilder stringBuilder = new StringBuilder(m);
 
 for (int i = 0; i < m; i++) {                                        // Generating the output string
-	stringBuilder.Append(chars[rand.Next(chars.Length)]);
+    var rand = new Random((int)DateTime.Now.Ticks);
+
+    stringBuilder.Append(chars[rand.Next(chars.Length)]);
 }
 
 List<int> keys = new();
 var counts = new Dictionary<string, int>();
 
-for (int i = 0; i < n; i++) {                                        // adding the phrases into the text
-	var rep = rand.Next(y, y + 10);                                   // how much will a certain phrase repeat itself
+for (int i = 0; i < n; i++) {
+    var rand = new Random((int)DateTime.Now.Ticks);
+
+    // adding the phrases into the text
+    var rep = rand.Next(y, y + 10);                                   // how much will a certain phrase repeat itself
 
 	for (int o = 0; o < rep; o++) {                                  // placing the phrase with the frequency of (y; y+2] 
 		var pos = rand.Next(0, m - 1 - x);                           // the index to place the current phrase
@@ -84,6 +106,7 @@ foreach (var (name, count) in counts) {
 
 /*									END OF TEST STRING GENERATION									*/
 
+search:
 Console.WriteLine();
 
 /* 										START OF RESULT SEARCH										*/
@@ -94,10 +117,10 @@ List<string> valuesToKeep = new();
 for (int size = outStr.Length - 1; size > x; size--) {
 	StringBuilder bufferBuilder = new(size);
 
-	int tempCount = matches.Count;
+	int tempCount = valuesToKeep.Count;
 
 	for (int i = 0; i < outStr.Length - size; i++) {
-		bufferBuilder.Clear().Append(outStr, i, x);
+		bufferBuilder.Clear().Append(outStr, i, size);
 		var buffer = bufferBuilder.ToString();
 
 		if (!matches.TryGetValue(buffer, out var count))
@@ -113,14 +136,23 @@ for (int size = outStr.Length - 1; size > x; size--) {
 					write = false;
 			}
 
-			if(write)
+			if(write && r.IsMatch(buffer))
 				valuesToKeep.Add(buffer);
 		}
 			
 	}
 
-	if (tempCount == matches.Count && valuesToKeep.Count != 0)
+	if (tempCount == valuesToKeep.Count && valuesToKeep.Count != 0)
 		break;
+
+	var newMatches = new Dictionary<string, int>();
+
+	foreach (var match in valuesToKeep)
+	{
+		newMatches[match] = matches[match]; 
+	}
+
+	matches = newMatches;
 }
 
 valuesToKeep.Sort();
