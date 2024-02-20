@@ -1,10 +1,56 @@
-﻿/*                                                            */
+﻿using System;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Diagnostics;
+using System.Linq;
+using System.Numerics;
+using ImPlotNET;
+using System.Runtime.CompilerServices;
+using Veldrid;
+using Veldrid.Sdl2;
+using Veldrid.StartupUtilities;
+
+
+namespace Fuzzy;
+
+public class FuzzySearch {
+	public static void Main() {
+
+        private static Sdl2Window _window;
+		private static GraphicsDevice _gd;
+		private static CommandList _cl;
+		private static ImGuiController _controller;
+
+    var windowCI = new WindowCreateInfo { 
+			X = 100,
+			Y = 100,
+            WindowHeight = 600,
+			WindowWidth = 800,
+			WindowTitle = "FuzzySearch"
+		};
+
+		var window = VeldridStartup.CreateWindow(ref windowCI);
+		var graphicsDevice = VeldridStartup.CreateGraphicsDevice(window);
+
+		ImGui.CreateContext();
+		
+
+		while(window.Exists)
+		{
+			window.PumpEvents();
+
+            
+		}
+	}
+}
+
+
+/*                                                            */
 /*     Text file generator for the fuzzy search algorithm     */
 /*                                                            */
 
-using System.Text;
-using System.Text.RegularExpressions;
 
+/*
 var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,;:<>/?\\=+";
 
 Console.Write("Provide x: ");	var x = int.Parse(Console.ReadLine() ?? "0");			// x - min phrase length [x; inf)
@@ -106,12 +152,12 @@ foreach (var (name, count) in counts) {
 }
 
 /*									END OF TEST STRING GENERATION									*/
-
+/*
 search:
 Console.WriteLine();
 
 /* 										START OF RESULT SEARCH										*/
-
+/*
 if (x1 == -1)
 	x1 = outStr.Length - x;
 
@@ -152,8 +198,8 @@ for(int size = x; size <= x1 && size < outStr.Length - x; size += s) {
 					continue;
 				}
 			} else { // Prefer count over size
-				if (count > matches[overlappingEntry]) {
-					// Replace existing entry if current entry has more matches
+				if (count > matches[overlappingEntry] || count >= matches[overlappingEntry] && buffer.Length > overlappingEntry.Length) {
+					// Replace existing entry if current entry has more matches or is longer
 					matches.Remove(overlappingEntry);
 					processedSubstrings.Remove(overlappingEntry);
 				} else {
@@ -187,3 +233,5 @@ int GetCount(string text, string subStr) {
 
 	return count;
 }
+
+*/
