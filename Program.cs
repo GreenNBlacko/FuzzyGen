@@ -267,7 +267,7 @@ public class FuzzySearch : Overlay {
 
 			currentStep = size;
 
-			Parallel.For(0, outStr.Length - size, async i => {
+			Parallel.For(0, outStr.Length - size, i => {
 				string buffer = outStr.Substring(i, size);
 
 				currentlyProcessing = buffer;
